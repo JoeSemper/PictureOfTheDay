@@ -7,16 +7,21 @@ import android.view.*
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.get
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import coil.api.load
 import com.google.android.material.bottomappbar.BottomAppBar
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.chip.Chip
 import com.joesemper.pictureoftheday.R
 import com.joesemper.pictureoftheday.ui.MainActivity
 import com.joesemper.pictureoftheday.ui.chips.ChipsFragment
+import kotlinx.android.synthetic.main.fragment_chips.*
 import kotlinx.android.synthetic.main.main_fragment.*
+import kotlinx.android.synthetic.main.main_fragment.chipGroup_days
+import java.util.*
 
 class PictureOfTheDayFragment : Fragment() {
 
@@ -28,7 +33,7 @@ class PictureOfTheDayFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel.getData()
-            .observe(this@PictureOfTheDayFragment, Observer<PictureOfTheDayData> { renderData(it) })
+            .observe(this@PictureOfTheDayFragment, Observer<PictureOfTheDayData> { renderContent(it) })
     }
 
     override fun onCreateView(
@@ -47,6 +52,7 @@ class PictureOfTheDayFragment : Fragment() {
             })
         }
         setBottomAppBar(view)
+        initChips()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -68,11 +74,39 @@ class PictureOfTheDayFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    private fun renderData(data: PictureOfTheDayData) {
+    private fun initChips() {
+        val calendar = Calendar.getInstance()
+        for (i in 0 until chipGroup_days.childCount) {
+            with(chipGroup_days[i] as Chip){
+                text = "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH)+1}-${calendar.get(Calendar.DAY_OF_MONTH)}"
+                if(i == 0) {
+                    this.isChecked = true
+                }
+            }
+            calendar.add(Calendar.DAY_OF_MONTH, -1)
+        }
+    }
+
+    private fun renderContent(data: PictureOfTheDayData) {
+        renderData(data)
+        setChipsListener(data)
+    }
+
+    private fun setChipsListener(data: PictureOfTheDayData) {
+        chipGroup_days.setOnCheckedChangeListener { chipGroup, position ->
+            chipGroup.findViewById<Chip>(position)?.let {
+                renderData(data,position - 1)
+            }
+        }
+    }
+
+    private fun renderData(data: PictureOfTheDayData, position: Int = 0) {
         when (data) {
             is PictureOfTheDayData.Success -> {
-                val serverResponseData = data.serverResponseData
-                val url = serverResponseData.url
+                val serverResponseData = data.serverResponseData.reversed()
+                val url = serverResponseData[position].url
+                val text = serverResponseData[position].explanation
+
                 if (url.isNullOrEmpty()) {
                     //showError("Сообщение, что ссылка пустая")
                     toast("Link is empty")
@@ -83,6 +117,7 @@ class PictureOfTheDayFragment : Fragment() {
                         error(R.drawable.ic_load_error_vector)
                         placeholder(R.drawable.ic_no_photo_vector)
                     }
+                    tv_explanation.text = text
                 }
             }
             is PictureOfTheDayData.Loading -> {
