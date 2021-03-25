@@ -7,6 +7,7 @@ import com.joesemper.pictureoftheday.BuildConfig
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.SimpleDateFormat
 import java.util.*
 
 class PictureOfTheDayViewModel(
@@ -27,9 +28,9 @@ class PictureOfTheDayViewModel(
             PictureOfTheDayData.Error(Throwable("You need API key"))
         } else {
             val calendar = Calendar.getInstance()
-            calendar.add(Calendar.DAY_OF_MONTH, -7)
-            val dateFormat =
-                "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH) + 1}-${calendar.get(Calendar.DAY_OF_MONTH)}"
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+            calendar.add(Calendar.DAY_OF_MONTH, -10)
+            val dateFormat = sdf.format(calendar.time).toString()
             retrofitImpl
                 .getRetrofitImpl()
                 .getPictureOfTheDay(

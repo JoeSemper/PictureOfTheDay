@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">?themeColorPrimary</item>
+        <item name="colorPrimaryDark">?themeColorPrimaryDark</item>
+        <item name="colorAccent">?themeColorAccent</item>
+        <item name="bottomBarTint">?themeColorPrimary</item>
+        <item name="fabTint">?colorAccent</item>
+    </style>
+
+
+    <style name="AppTheme.Green">
+        <item name="themeColorPrimary">@color/colorPrimaryGreen</item>
+        <item name="themeColorPrimaryDark">@color/colorPrimaryDarkGreen</item>
+        <item name="themeColorAccent">@color/colorAccentGreen</item>
+    </style>
+
+    <style name="AppTheme.Blue">
+        <item name="themeColorPrimary">@color/colorPrimaryBlue</item>
+        <item name="themeColorPrimaryDark">@color/colorPrimaryDarkBlue</item>
+        <item name="themeColorAccent">@color/colorAccentBlue</item>
+    </style>
+
+    <style name="AppTheme.Red">
+        <item name="themeColorPrimary">@color/colorPrimaryRed</item>
+        <item name="themeColorPrimaryDark">@color/colorPrimaryDarkRed</item>
+        <item name="themeColorAccent">@color/colorAccentRed</item>
+    </style>
+</resources>

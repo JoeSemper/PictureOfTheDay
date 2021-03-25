@@ -1,6 +1,8 @@
 package com.joesemper.pictureoftheday.ui.picture
 
+import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
@@ -17,15 +19,17 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.Chip
 import com.joesemper.pictureoftheday.R
 import com.joesemper.pictureoftheday.ui.MainActivity
-import com.joesemper.pictureoftheday.ui.chips.ChipsFragment
-import kotlinx.android.synthetic.main.fragment_chips.*
+import com.joesemper.pictureoftheday.ui.settings.*
 import kotlinx.android.synthetic.main.main_fragment.*
-import kotlinx.android.synthetic.main.main_fragment.chipGroup_days
+import java.text.SimpleDateFormat
 import java.util.*
 
 class PictureOfTheDayFragment : Fragment() {
 
+    private var preferences: SharedPreferences? = null
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
+    private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+
     private val viewModel: PictureOfTheDayViewModel by lazy {
         ViewModelProviders.of(this).get(PictureOfTheDayViewModel::class.java)
     }
@@ -40,6 +44,8 @@ class PictureOfTheDayFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        preferences = context?.getSharedPreferences(SETTINGS_FILE, Context.MODE_PRIVATE)
+        requireActivity().setTheme(getCurrentTheme())
         return inflater.inflate(R.layout.main_fragment, container, false)
     }
 
@@ -64,7 +70,7 @@ class PictureOfTheDayFragment : Fragment() {
         when (item.itemId) {
             R.id.app_bar_fav -> toast("Favourite")
             R.id.app_bar_settings -> activity?.supportFragmentManager?.beginTransaction()
-                ?.add(R.id.container, ChipsFragment())?.addToBackStack(null)?.commit()
+                ?.add(R.id.container, SettingsFragment())?.addToBackStack(null)?.commitAllowingStateLoss()
             android.R.id.home -> {
                 activity?.let {
                     BottomNavigationDrawerFragment().show(it.supportFragmentManager, "tag")
@@ -78,34 +84,33 @@ class PictureOfTheDayFragment : Fragment() {
         val calendar = Calendar.getInstance()
         for (i in 0 until chipGroup_days.childCount) {
             with(chipGroup_days[i] as Chip){
-                text = "${calendar.get(Calendar.YEAR)}-${calendar.get(Calendar.MONTH)+1}-${calendar.get(Calendar.DAY_OF_MONTH)}"
-                if(i == 0) {
-                    this.isChecked = true
-                }
+                text = sdf.format(calendar.time).toString()
+                if(i == 0) { this.isChecked = true }
             }
             calendar.add(Calendar.DAY_OF_MONTH, -1)
         }
     }
 
     private fun renderContent(data: PictureOfTheDayData) {
-        renderData(data)
+        val calendar = Calendar.getInstance()
+        renderData(data, sdf.format(calendar.time).toString())
         setChipsListener(data)
     }
 
     private fun setChipsListener(data: PictureOfTheDayData) {
         chipGroup_days.setOnCheckedChangeListener { chipGroup, position ->
             chipGroup.findViewById<Chip>(position)?.let {
-                renderData(data,position - 1)
+                renderData(data, it.text.toString())
             }
         }
     }
 
-    private fun renderData(data: PictureOfTheDayData, position: Int = 0) {
+    private fun renderData(data: PictureOfTheDayData, date: String) {
         when (data) {
             is PictureOfTheDayData.Success -> {
-                val serverResponseData = data.serverResponseData.reversed()
-                val url = serverResponseData[position].url
-                val text = serverResponseData[position].explanation
+                val serverResponseData = data.serverResponseData.find { it.date == date }
+                val url = serverResponseData?.url
+                val text = serverResponseData?.explanation
 
                 if (url.isNullOrEmpty()) {
                     //showError("Сообщение, что ссылка пустая")
@@ -161,6 +166,15 @@ class PictureOfTheDayFragment : Fragment() {
         Toast.makeText(context, string, Toast.LENGTH_SHORT).apply {
             setGravity(Gravity.BOTTOM, 0, 250)
             show()
+        }
+    }
+
+    private fun getCurrentTheme(): Int {
+        return when (preferences?.getString(THEME_SETTINGS, THEME_GREEN)) {
+            THEME_GREEN -> R.style.AppTheme_Green
+            THEME_BLUE -> R.style.AppTheme_Blue
+            THEME_RED -> R.style.AppTheme_Red
+            else -> R.style.AppTheme_Green
         }
     }
 

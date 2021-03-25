@@ -6,5 +6,14 @@
     <string name="favourite">favourite</string>
     <string name="settings">settings</string>
     <string name="search">Search</string>
+    <string name="theme">Theme</string>
+    <string name="green">Green</string>
+    <string name="blue">Blue</string>
+    <string name="red">Red</string>
+    <string name="apply">Apply</string>
+    <string name="num_of_days_history">Num of days history</string>
+    <string name="settings_title">Settings</string>
+    <string name="fab">FAB</string>
+    <string name="explanation">Explanation</string>
 
 </resources>
