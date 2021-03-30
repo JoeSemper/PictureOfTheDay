@@ -26,6 +26,7 @@
 
     <style name="TextAppearance.AppCompat.Simple">
         <item name="android:textSize">@dimen/simple_font_size</item>
+        <item name="android:textColor">@color/simpleTextColor</item>
         <item name="android:padding">@dimen/simple_text_padding</item>
     </style>
 

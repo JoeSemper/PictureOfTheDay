@@ -15,5 +15,6 @@
     <string name="settings_title">Settings</string>
     <string name="fab">FAB</string>
     <string name="explanation">Explanation</string>
+    <string name="earth_photo">Earth photo</string>
 
 </resources>
