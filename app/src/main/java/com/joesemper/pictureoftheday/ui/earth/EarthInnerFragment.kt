@@ -9,7 +9,6 @@ import coil.api.load
 import com.joesemper.pictureoftheday.BuildConfig
 import com.joesemper.pictureoftheday.R
 import kotlinx.android.synthetic.main.fragment_earth_inner.*
-import kotlinx.android.synthetic.main.main_fragment.*
 
 class EarthInnerFragment(val data: EarthServerResponseData): Fragment() {
 

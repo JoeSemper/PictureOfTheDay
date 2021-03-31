@@ -64,7 +64,7 @@ class MarsFragment : Fragment() {
 
     private fun initTabs() {
         TabLayoutMediator(tabLayout_mars, viewPager) { tab, position ->
-            tab.text = getDate(-position-1 )
+            tab.text = getDate(-position-2 )
         }.attach()
     }
 

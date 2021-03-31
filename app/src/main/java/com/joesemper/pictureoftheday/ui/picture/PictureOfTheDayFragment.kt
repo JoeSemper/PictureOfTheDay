@@ -8,17 +8,14 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.get
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import coil.api.load
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.chip.Chip
 import com.joesemper.pictureoftheday.R
 import com.joesemper.pictureoftheday.ui.settings.*
-import kotlinx.android.synthetic.main.main_fragment.*
+import kotlinx.android.synthetic.main.fragment_main.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -44,7 +41,7 @@ class PictureOfTheDayFragment : Fragment() {
         setHasOptionsMenu(true)
         preferences = context?.getSharedPreferences(SETTINGS_FILE, Context.MODE_PRIVATE)
         requireActivity().setTheme(getCurrentTheme())
-        return View.inflate(context, R.layout.main_fragment, null)
+        return View.inflate(context, R.layout.fragment_main_start, null)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

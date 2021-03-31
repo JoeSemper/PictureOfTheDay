@@ -17,7 +17,6 @@ import com.joesemper.pictureoftheday.ui.settings.*
 import com.joesemper.pictureoftheday.util.DepthPageTransformer
 import kotlinx.android.synthetic.main.fragment_earth.*
 import kotlinx.android.synthetic.main.main_activity.*
-import kotlinx.android.synthetic.main.main_fragment.*
 import java.util.*
 
 class EarthFragment : Fragment() {
@@ -25,8 +24,7 @@ class EarthFragment : Fragment() {
     private var preferences: SharedPreferences? = null
 
     private lateinit var viewPager: ViewPager2
-
-
+    
     private val viewModel: EarthViewModel by lazy {
         ViewModelProviders.of(this).get(EarthViewModel::class.java)
     }

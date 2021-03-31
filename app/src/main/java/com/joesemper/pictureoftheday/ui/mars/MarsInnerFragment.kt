@@ -31,15 +31,17 @@ class MarsInnerFragment(private val position: Int): Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.getData(getDate(-position-1))
+        viewModel.getData(getDate(-position-2))
             .observe(this@MarsInnerFragment, { renderData(it) })
     }
 
     private fun renderData(data: MarsData) {
         when (data) {
             is MarsData.Success -> {
-                val serverResponseData = data.serverResponseData
-                showContent(serverResponseData.data.first())
+                val serverResponseData = data.serverResponseData.data
+                if (serverResponseData.isNotEmpty()) {
+                    showContent(serverResponseData.first())
+                }
             }
             is MarsData.Error -> {
             }
