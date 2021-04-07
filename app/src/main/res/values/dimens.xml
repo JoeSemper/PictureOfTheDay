@@ -3,5 +3,6 @@
     <dimen name="header_font_size">24sp</dimen>
     <dimen name="simple_font_size">18sp</dimen>
     <dimen name="simple_text_padding">4dp</dimen>
+    <dimen name="spacing_medium">16dp</dimen>
 
 </resources>

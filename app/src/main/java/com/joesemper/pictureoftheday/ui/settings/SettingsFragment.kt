@@ -47,18 +47,9 @@ class SettingsFragment : Fragment() {
         chipGroup_themes.setOnCheckedChangeListener { chipGroup, position ->
             chipGroup.findViewById<Chip>(position)?.let { chip ->
                 when (chip.text) {
-                    context?.getString(R.string.green) -> {
-                        saveTheme(THEME_GREEN)
-                        replaceFragment(SettingsFragment())
-                    }
-                    context?.getString(R.string.blue) -> {
-                        saveTheme(THEME_BLUE)
-                        replaceFragment(SettingsFragment())
-                    }
-                    context?.getString(R.string.red) -> {
-                        saveTheme(THEME_RED)
-                        replaceFragment(SettingsFragment())
-                    }
+                    context?.getString(R.string.green) -> saveTheme(THEME_GREEN)
+                    context?.getString(R.string.blue) -> saveTheme(THEME_BLUE)
+                    context?.getString(R.string.red) -> saveTheme(THEME_RED)
                 }
             }
         }
@@ -75,18 +66,6 @@ class SettingsFragment : Fragment() {
             THEME_RED -> R.style.AppTheme_Red
             else -> R.style.AppTheme_Green
         }
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        replaceFragment(PictureOfTheDayFragment())
-    }
-
-    private fun replaceFragment(fragment: Fragment) {
-        activity?.supportFragmentManager
-            ?.beginTransaction()
-            ?.replace(R.id.container, fragment)
-            ?.commit()
     }
 
     private fun saveTheme(theme: String) {

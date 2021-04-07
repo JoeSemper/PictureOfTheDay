@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_pod_main"
+    app:startDestination="@id/pod_main_fragment">
+
+    <fragment
+        android:id="@+id/pod_main_fragment"
+        android:name="com.joesemper.pictureoftheday.ui.picture.PictureOfTheDayFragment"
+        android:label="PodMainFragment">
+        <action
+            android:id="@+id/action_pod_detail"
+            app:destination="@id/podDetailFragment" />
+        <action
+            android:id="@+id/action_pod_main_fragment_to_marsFragment"
+            app:destination="@id/marsFragment" />
+        <action
+            android:id="@+id/action_pod_main_fragment_to_settingsFragment"
+            app:destination="@id/settingsFragment" />
+        <action
+            android:id="@+id/action_pod_main_fragment_to_earthFragment"
+            app:destination="@id/earthFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/podDetailFragment"
+        android:name="com.joesemper.pictureoftheday.ui.picture.PictureOfTheDayDetailFragment"
+        android:label="CheeseArticleFragment">
+        <argument
+            android:name="img"
+            app:argType="string" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+        <argument
+            android:name="description"
+            app:argType="string" />
+    </fragment>
+    <fragment
+        android:id="@+id/marsFragment"
+        android:name="com.joesemper.pictureoftheday.ui.mars.MarsFragment"
+        android:label="MarsFragment" />
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.joesemper.pictureoftheday.ui.settings.SettingsFragment"
+        android:label="SettingsFragment" />
+    <fragment
+        android:id="@+id/earthFragment"
+        android:name="com.joesemper.pictureoftheday.ui.earth.EarthFragment"
+        android:label="fragment_earth"
+        tools:layout="@layout/fragment_earth" />
+
+</navigation>
