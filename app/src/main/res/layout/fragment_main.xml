@@ -25,34 +25,23 @@
         android:id="@+id/nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fillViewport="true"
         app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
         app:layout_scrollFlags="scroll|enterAlways">
 
-        <androidx.constraintlayout.motion.widget.MotionLayout
-            android:id="@+id/main"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/container_main"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             tools:ignore="MotionLayoutInvalidSceneFileReference">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/wiki_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="10dp"
-                android:visibility="gone"
-                app:layout_constraintBottom_toBottomOf="@+id/input_layout"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/input_layout"
-                app:srcCompat="@drawable/ic_wikipedia" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/input_layout"
+                style="@style/TextInputStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                style="@style/TextInputStyle"
                 android:hint="@string/search_wiki"
                 app:endIconDrawable="@drawable/ic_wikipedia"
                 app:helperText="@string/wiki_helper_text"
@@ -120,37 +109,55 @@
                 </com.google.android.material.chip.ChipGroup>
             </HorizontalScrollView>
 
-            <com.joesemper.pictureoftheday.util.EquilateralImageView
-                android:id="@+id/image_view"
-                style="@style/ImageViewStyle"
-                android:contentDescription="@string/photo_of_the_day_stub"
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_pod"
+                android:layout_width="match_parent"
+                android:layout_height="400dp"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="32dp"
+                android:layout_marginEnd="32dp"
+                android:padding="8dp"
+                app:cardElevation="4dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView"
-                app:srcCompat="@drawable/ic_no_photo_vector" />
+                app:layout_constraintTop_toBottomOf="@+id/horizontalScrollView">
 
-            <TextView
-                android:id="@+id/textView2"
-                style="@style/TextAppearance.AppCompat.Header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/explanation"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/image_view" />
+                <com.joesemper.pictureoftheday.util.MirrorView
+                    android:id="@+id/main_mirror"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
 
-            <TextView
-                android:id="@+id/tv_explanation"
-                style="@style/TextAppearance.AppCompat.Simple"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.5"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/pod_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
-        </androidx.constraintlayout.motion.widget.MotionLayout>
+                    <com.joesemper.pictureoftheday.util.EquilateralImageView
+                        android:id="@+id/image_view_pod"
+                        style="@style/ImageViewStyle"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:contentDescription="@string/photo_of_the_day_stub"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintHorizontal_bias="1.0"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_no_photo_vector" />
+
+                    <TextView
+                        android:id="@+id/tv_main_header"
+                        style="@style/TextAppearance.AppCompat.Header"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:textAlignment="center"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/image_view_pod" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.core.widget.NestedScrollView>
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

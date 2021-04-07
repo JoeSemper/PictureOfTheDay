@@ -3,17 +3,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/bottom_view_home"
+        android:id="@+id/pod_main_fragment"
         android:icon="@drawable/ic_baseline_home_24"
         android:title="Home" />
 
     <item
-        android:id="@+id/bottom_view_earth"
+        android:id="@+id/earthFragment"
         android:icon="@drawable/ic_earth"
         android:title="Earth" />
 
     <item
-        android:id="@+id/bottom_view_mars"
+        android:id="@+id/marsFragment"
         android:icon="@drawable/ic_mars"
         android:title="Mars" />
 </menu>
