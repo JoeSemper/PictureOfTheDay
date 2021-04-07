@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <attr name="themeColorPrimary" format="reference" />
+    <attr name="themeColorPrimaryDark" format="reference" />
+    <attr name="themeColorAccent" format="reference" />
+    <attr name="bottomBarTint" format="reference" />
+    <attr name="fabTint" format="reference" />
+</resources>
