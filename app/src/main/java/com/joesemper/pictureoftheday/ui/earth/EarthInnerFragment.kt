@@ -32,20 +32,20 @@ class EarthInnerFragment(val data: EarthServerResponseData): Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        renderData()
-        setImageExpandClickListener()
+//        renderData()
+//        setImageExpandClickListener()
     }
 
-    private fun renderData() {
-        iv_earth.load(getPictureUrl()) {
-            lifecycle(this@EarthInnerFragment)
-            error(R.drawable.ic_load_error_vector)
-            placeholder(R.drawable.ic_no_photo_vector)
-        }
-
-        tv_caption.text = data.caption
-
-    }
+//    private fun renderData() {
+//        iv_earth.load(getPictureUrl()) {
+//            lifecycle(this@EarthInnerFragment)
+//            error(R.drawable.ic_load_error_vector)
+//            placeholder(R.drawable.ic_no_photo_vector)
+//        }
+//
+//        tv_caption.text = data.caption
+//
+//    }
 
     private fun getPictureUrl(): String {
         val basePictureUrl = "https://api.nasa.gov/EPIC/archive/enhanced/"
@@ -62,26 +62,26 @@ class EarthInnerFragment(val data: EarthServerResponseData): Fragment() {
         return  "${pars[0]}/${pars[1]}/${pars[2]}/"
     }
 
-    private fun setImageExpandClickListener() {
-        iv_earth.setOnClickListener {
-            isExpanded = !isExpanded
-
-            TransitionManager.beginDelayedTransition(container_earth, TransitionSet()
-                    .addTransition(ChangeBounds())
-                    .addTransition(ChangeImageTransform())
-            )
-
-            val params: ViewGroup.LayoutParams = iv_earth.layoutParams
-            params.height =
-                if (isExpanded) ViewGroup.LayoutParams.MATCH_PARENT
-                else ViewGroup.LayoutParams.WRAP_CONTENT
-
-            iv_earth.layoutParams = params
-            iv_earth.scaleType =
-                if (isExpanded) ImageView.ScaleType.CENTER_CROP
-                else ImageView.ScaleType.FIT_CENTER
-        }
-    }
+//    private fun setImageExpandClickListener() {
+//        iv_earth.setOnClickListener {
+//            isExpanded = !isExpanded
+//
+//            TransitionManager.beginDelayedTransition(container_earth, TransitionSet()
+//                    .addTransition(ChangeBounds())
+//                    .addTransition(ChangeImageTransform())
+//            )
+//
+//            val params: ViewGroup.LayoutParams = iv_earth.layoutParams
+//            params.height =
+//                if (isExpanded) ViewGroup.LayoutParams.MATCH_PARENT
+//                else ViewGroup.LayoutParams.WRAP_CONTENT
+//
+//            iv_earth.layoutParams = params
+//            iv_earth.scaleType =
+//                if (isExpanded) ImageView.ScaleType.CENTER_CROP
+//                else ImageView.ScaleType.FIT_CENTER
+//        }
+//    }
 
 
 }

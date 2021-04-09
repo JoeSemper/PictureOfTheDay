@@ -4,15 +4,21 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.tabs.TabLayoutMediator
+import com.joesemper.pictureoftheday.BuildConfig
 import com.joesemper.pictureoftheday.R
+import com.joesemper.pictureoftheday.ui.earth.recycler.*
 import com.joesemper.pictureoftheday.ui.settings.*
 import com.joesemper.pictureoftheday.util.DepthPageTransformer
 import kotlinx.android.synthetic.main.fragment_earth.*
@@ -23,8 +29,10 @@ class EarthFragment : Fragment() {
 
     private var preferences: SharedPreferences? = null
 
-    private lateinit var viewPager: ViewPager2
-    
+
+    private lateinit var adapter: EarthFragmentRVAdapter
+    private lateinit var itemTouchHelper: ItemTouchHelper
+
     private val viewModel: EarthViewModel by lazy {
         ViewModelProviders.of(this).get(EarthViewModel::class.java)
     }
@@ -32,7 +40,7 @@ class EarthFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel.getData()
-            .observe(this@EarthFragment, { renderContent(it) })
+            .observe(this@EarthFragment as LifecycleOwner, { renderContent(it) })
     }
 
     override fun onCreateView(
@@ -68,8 +76,8 @@ class EarthFragment : Fragment() {
         when (data) {
             is EarthData.Success -> {
                 val serverResponseData = data.serverResponseData
-                initViewPager(serverResponseData)
-                initTabs(serverResponseData)
+                val rvData = createRVData(serverResponseData)
+                initRV(rvData)
             }
             is EarthData.Error -> {
             }
@@ -78,19 +86,63 @@ class EarthFragment : Fragment() {
         }
     }
 
-    private fun initTabs(data: List<EarthServerResponseData>) {
-        TabLayoutMediator(tabLayout_earth, viewPager) { tab, position ->
-            tab.text = data[position].date
-        }.attach()
+    private fun createRVData(data: List<EarthServerResponseData>): MutableList<Pair<Data, Boolean>> {
+        return MutableList(data.size) { int ->
+            val itemData = Data(
+                img = getPictureUrl(data[int]),
+                date = data[int].date,
+                description = data[int].caption ?: "No description"
+            )
+            Pair(itemData, false)
+        }
     }
 
+    private fun initRV(data: MutableList<Pair<Data, Boolean>>) {
+        val onListItemClickListener = object : OnListItemClickListener {
+            override fun onItemClick(data: Data) {
+                Toast.makeText(context, data.date, Toast.LENGTH_SHORT).show()
+            }
+        }
+        val onStartDragListener =  object : OnStartDragListener {
+            override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) {
+                itemTouchHelper.startDrag(viewHolder)
+            }
+        }
 
-    private fun initViewPager(data: List<EarthServerResponseData>) {
-        val fragmentManager = requireActivity().supportFragmentManager
-        viewPager = requireActivity().findViewById(R.id.view_pager_earth)
-        viewPager.setPageTransformer(DepthPageTransformer())
-        viewPager.adapter = ScreenSlidePagerAdapter(fragmentManager, lifecycle, data)
+        adapter = EarthFragmentRVAdapter(onListItemClickListener, data, onStartDragListener)
+        earthRecycler.adapter = adapter
+
+        itemTouchHelper = ItemTouchHelper((ItemTouchHelperCallback(adapter)))
+        itemTouchHelper.attachToRecyclerView(earthRecycler)
+
+        earthRecycler.addOnScrollListener(object :
+            RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(recyclerView, newState)
+
+                if (!recyclerView.canScrollVertically(1)) {
+                    Toast.makeText(context, "Last", Toast.LENGTH_LONG).show()
+                }
+            }
+        })
+
     }
+
+    private fun getPictureUrl(data: EarthServerResponseData): String {
+        val basePictureUrl = "https://api.nasa.gov/EPIC/archive/enhanced/"
+        val date = getDate(data)
+        val extension = "png/"
+        val img = data.image + ".png"
+        val apiKey: String = "?api_key=" + BuildConfig.NASA_API_KEY
+
+        return basePictureUrl + date + extension + img + apiKey
+    }
+
+    private fun getDate(data: EarthServerResponseData): String {
+        val pars = data.date.split("-", " ")
+        return "${pars[0]}/${pars[1]}/${pars[2]}/"
+    }
+
 
     private fun getCurrentTheme(): Int {
         return when (preferences?.getString(THEME_SETTINGS, THEME_GREEN)) {
@@ -100,18 +152,4 @@ class EarthFragment : Fragment() {
             else -> R.style.AppTheme_Green
         }
     }
-
-    private inner class ScreenSlidePagerAdapter(
-        fm: FragmentManager,
-        lifecycle: Lifecycle,
-        val data: List<EarthServerResponseData>
-    ) :
-        FragmentStateAdapter(fm, lifecycle) {
-
-        override fun getItemCount(): Int = data.size
-
-        override fun createFragment(position: Int): Fragment =
-            EarthInnerFragment.newInstance(data[position])
-    }
-
 }
