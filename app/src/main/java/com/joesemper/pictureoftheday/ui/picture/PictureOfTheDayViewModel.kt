@@ -17,7 +17,9 @@ class PictureOfTheDayViewModel(
     ViewModel() {
 
     fun getData(): LiveData<PictureOfTheDayData> {
-        sendServerRequest()
+        if (liveDataForViewToObserve.value !is PictureOfTheDayData.Success) {
+            sendServerRequest()
+        }
         return liveDataForViewToObserve
     }
 
