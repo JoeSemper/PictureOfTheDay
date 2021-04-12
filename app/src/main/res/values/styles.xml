@@ -22,12 +22,14 @@
     <style name="TextAppearance.AppCompat.Header">
         <item name="android:textSize">@dimen/header_font_size</item>
         <item name="android:textColor">?themeColorPrimary</item>
+        <item name="fontFamily">@font/baumans</item>
     </style>
 
     <style name="TextAppearance.AppCompat.Simple">
         <item name="android:textSize">@dimen/simple_font_size</item>
         <item name="android:textColor">@color/simpleTextColor</item>
         <item name="android:padding">@dimen/simple_text_padding</item>
+        <item name="fontFamily">@font/baumans</item>
     </style>
 
     <style name="ImageViewStyle">

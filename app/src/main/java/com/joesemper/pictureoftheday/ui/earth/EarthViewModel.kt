@@ -14,8 +14,12 @@ class EarthViewModel(
 ) :
     ViewModel() {
 
-    fun getData(): LiveData<EarthData> {
-        sendServerRequest()
+    fun getData(date: String = ""): LiveData<EarthData> {
+        if (date.isBlank()){
+            sendServerRequest()
+        } else {
+            sendServerRequestByDate(date)
+        }
         return liveDataForViewToObserve
     }
 
@@ -29,6 +33,44 @@ class EarthViewModel(
             retrofitImpl
                 .getRetrofitImpl()
                 .getEarthData(apiKey)
+                .enqueue(object :
+                    Callback<List<EarthServerResponseData>> {
+                    override fun onResponse(
+                        call: Call<List<EarthServerResponseData>>,
+                        response: Response<List<EarthServerResponseData>>
+                    ) {
+                        if (response.isSuccessful && response.body() != null) {
+                            liveDataForViewToObserve.value =
+                                EarthData.Success(response.body()!!)
+                        } else {
+                            val message = response.message()
+                            if (message.isNullOrEmpty()) {
+                                liveDataForViewToObserve.value =
+                                    EarthData.Error(Throwable("Unidentified error"))
+                            } else {
+                                liveDataForViewToObserve.value =
+                                    EarthData.Error(Throwable(message))
+                            }
+                        }
+                    }
+
+                    override fun onFailure(call: Call<List<EarthServerResponseData>>, t: Throwable) {
+                        liveDataForViewToObserve.value = EarthData.Error(t)
+                    }
+                })
+        }
+    }
+
+    private fun sendServerRequestByDate(date: String) {
+        liveDataForViewToObserve.value = EarthData.Loading(null)
+        val apiKey: String = BuildConfig.NASA_API_KEY
+
+        if (apiKey.isBlank()) {
+            EarthData.Error(Throwable("You need API key"))
+        } else {
+            retrofitImpl
+                .getRetrofitImpl()
+                .getEarthDataByDate(date, apiKey)
                 .enqueue(object :
                     Callback<List<EarthServerResponseData>> {
                     override fun onResponse(

@@ -18,8 +18,6 @@ import kotlinx.android.synthetic.main.fragment_pod_detail.*
 
 class EarthDialogFragment() : DialogFragment() {
 
-    private var isExpanded = false
-
     companion object {
         private const val ARG = "DIALOG_ARG"
 

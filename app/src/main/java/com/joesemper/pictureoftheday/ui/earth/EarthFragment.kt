@@ -97,13 +97,6 @@ class EarthFragment : Fragment() {
     private fun initRV(data: MutableList<Pair<Data, Boolean>>) {
         val onListItemClickListener = object : OnListItemClickListener {
             override fun onItemClick(data: Data) {
-//                val ft: FragmentTransaction = fragmentManager!!.beginTransaction()
-//                val prev = fragmentManager!!.findFragmentByTag("dialog")
-//                if (prev != null) {
-//                    ft.remove(prev)
-//                }
-//                ft.addToBackStack(null)
-
                 val dialogFragment = EarthDialogFragment.newInstance(data.img)
                 dialogFragment.show(childFragmentManager, "dialog")
             }
@@ -125,13 +118,25 @@ class EarthFragment : Fragment() {
             RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-
-                if (!recyclerView.canScrollVertically(1)) {
-                    Toast.makeText(context, "Last", Toast.LENGTH_LONG).show()
-                }
+//                viewModel.getData().observe(this@EarthFragment as LifecycleOwner, { addData(it) })
             }
         })
 
+    }
+
+    private fun addData(data: EarthData) {
+        when (data) {
+            is EarthData.Success -> {
+                val serverResponseData = data.serverResponseData
+                val rvData = createRVData(serverResponseData)
+                adapter.data.addAll(rvData)
+                adapter.notifyDataSetChanged()
+            }
+            is EarthData.Error -> {
+            }
+            is EarthData.Loading -> {
+            }
+        }
     }
 
     private fun getPictureUrl(data: EarthServerResponseData): String {

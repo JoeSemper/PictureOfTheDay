@@ -6,6 +6,9 @@ import android.content.SharedPreferences
 import android.icu.text.CaseMap
 import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.UnderlineSpan
 import android.view.*
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +17,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.*
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.FragmentNavigatorExtras
@@ -47,7 +51,7 @@ class PictureOfTheDayFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel.getData()
-            .observe(this@PictureOfTheDayFragment, { renderContent(it) })
+            .observe(this@PictureOfTheDayFragment as LifecycleOwner, { renderContent(it) })
 
 
     }
@@ -162,7 +166,10 @@ class PictureOfTheDayFragment : Fragment() {
             error(R.drawable.ic_load_error_vector)
             placeholder(R.drawable.ic_no_photo_vector)
         }
-        tv_main_header.text = title
+
+        val string = SpannableString(title)
+        string.setSpan(UnderlineSpan(), 0, title.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        tv_main_header.text = string
     }
 
     private fun initTransition() {

@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.fragment_earth_item.view.*
 
 class EarthFragmentRVAdapter (
     private val onListItemClickListener: OnListItemClickListener,
-    private var data: MutableList<Pair<Data, Boolean>>,
+    var data: MutableList<Pair<Data, Boolean>>,
     private val dragListener: OnStartDragListener
     ) :
         RecyclerView.Adapter<BaseViewHolder>(), ItemTouchHelperAdapter {
