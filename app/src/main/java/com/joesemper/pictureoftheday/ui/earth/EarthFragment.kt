@@ -5,25 +5,22 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Lifecycle
+import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.tabs.TabLayoutMediator
 import com.joesemper.pictureoftheday.BuildConfig
 import com.joesemper.pictureoftheday.R
 import com.joesemper.pictureoftheday.ui.earth.recycler.*
 import com.joesemper.pictureoftheday.ui.settings.*
-import com.joesemper.pictureoftheday.util.DepthPageTransformer
 import kotlinx.android.synthetic.main.fragment_earth.*
 import kotlinx.android.synthetic.main.main_activity.*
 import java.util.*
+import kotlin.concurrent.fixedRateTimer
 
 class EarthFragment : Fragment() {
 
@@ -100,9 +97,18 @@ class EarthFragment : Fragment() {
     private fun initRV(data: MutableList<Pair<Data, Boolean>>) {
         val onListItemClickListener = object : OnListItemClickListener {
             override fun onItemClick(data: Data) {
-                Toast.makeText(context, data.date, Toast.LENGTH_SHORT).show()
+//                val ft: FragmentTransaction = fragmentManager!!.beginTransaction()
+//                val prev = fragmentManager!!.findFragmentByTag("dialog")
+//                if (prev != null) {
+//                    ft.remove(prev)
+//                }
+//                ft.addToBackStack(null)
+
+                val dialogFragment = EarthDialogFragment.newInstance(data.img)
+                dialogFragment.show(childFragmentManager, "dialog")
             }
         }
+
         val onStartDragListener =  object : OnStartDragListener {
             override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) {
                 itemTouchHelper.startDrag(viewHolder)

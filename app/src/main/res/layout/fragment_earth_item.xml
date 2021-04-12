@@ -10,19 +10,20 @@
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_margin="4dp"
-        app:layout_constraintBottom_toTopOf="@+id/view"
+        app:layout_constraintBottom_toBottomOf="@id/tv_item_description"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/tv_item_earth_time"
-        style="@style/TextAppearance.AppCompat.Header"
+        style="@style/TextAppearance.AppCompat.Simple"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/iv_handle"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_item_earth"
+        app:layout_constraintEnd_toStartOf="@+id/iv_drag_handle"
         app:layout_constraintStart_toEndOf="@+id/iv_item_earth"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/iv_item_earth" />
 
     <TextView
         android:id="@+id/tv_item_description"
@@ -49,11 +50,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
+        android:contentDescription="Drag handle"
         android:tint="@color/simpleTextColor"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_item_earth_time"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_hamburger_menu_bottom_bar"
-        android:contentDescription="Drag handle" />
+        app:layout_constraintTop_toTopOf="@+id/tv_item_earth_time"
+        app:srcCompat="@drawable/ic_hamburger_menu_bottom_bar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
