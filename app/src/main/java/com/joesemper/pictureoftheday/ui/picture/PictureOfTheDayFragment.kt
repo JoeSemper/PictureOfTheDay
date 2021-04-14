@@ -3,89 +3,120 @@ package com.joesemper.pictureoftheday.ui.picture
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.icu.text.CaseMap
 import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.UnderlineSpan
 import android.view.*
-import android.widget.Toast
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
-import androidx.core.view.get
+import androidx.core.view.*
+import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.findNavController
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.NavHostFragment
+import androidx.transition.*
 import coil.api.load
-import com.google.android.material.bottomappbar.BottomAppBar
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+import coil.request.CachePolicy
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import com.joesemper.pictureoftheday.R
-import com.joesemper.pictureoftheday.ui.MainActivity
 import com.joesemper.pictureoftheday.ui.settings.*
-import kotlinx.android.synthetic.main.main_fragment.*
+import com.joesemper.pictureoftheday.util.*
+import kotlinx.android.synthetic.main.fragment_main.*
+import kotlinx.android.synthetic.main.fragment_settings.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 class PictureOfTheDayFragment : Fragment() {
 
     private var preferences: SharedPreferences? = null
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<ConstraintLayout>
     private val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.US)
 
     private val viewModel: PictureOfTheDayViewModel by lazy {
         ViewModelProviders.of(this).get(PictureOfTheDayViewModel::class.java)
     }
 
+    private var currentData: PODServerResponseData? = null
+
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel.getData()
-            .observe(this@PictureOfTheDayFragment, Observer<PictureOfTheDayData> { renderContent(it) })
+            .observe(this@PictureOfTheDayFragment as LifecycleOwner, { renderContent(it) })
+
+
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        initTransition()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        setHasOptionsMenu(true)
         preferences = context?.getSharedPreferences(SETTINGS_FILE, Context.MODE_PRIVATE)
         requireActivity().setTheme(getCurrentTheme())
-        return inflater.inflate(R.layout.main_fragment, container, false)
+        return View.inflate(context, R.layout.fragment_main, null)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setBottomSheetBehavior(view.findViewById(R.id.bottom_sheet_container))
+        initToolbar()
+        setEndIconListener()
+        initChips()
+        initTransitionAnimation(view)
+    }
+
+    private fun initToolbar() {
+        (activity as AppCompatActivity).setSupportActionBar(toolbar_home)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_app_bar, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.item_settings -> {
+                val host: NavHostFragment = requireActivity().supportFragmentManager
+                    .findFragmentById(R.id.container) as NavHostFragment
+                val navController = host.navController
+                navController.navigate(R.id.settingsFragment)
+                return true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun setEndIconListener() {
         input_layout.setEndIconOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW).apply {
                 data = Uri.parse("https://en.wikipedia.org/wiki/${input_edit_text.text.toString()}")
             })
         }
-        setBottomAppBar(view)
-        initChips()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.menu_bottom_bar, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.app_bar_fav -> toast("Favourite")
-            R.id.app_bar_settings -> activity?.supportFragmentManager?.beginTransaction()
-                ?.add(R.id.container, SettingsFragment())?.addToBackStack(null)?.commitAllowingStateLoss()
-            android.R.id.home -> {
-                activity?.let {
-                    BottomNavigationDrawerFragment().show(it.supportFragmentManager, "tag")
-                }
-            }
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     private fun initChips() {
         val calendar = Calendar.getInstance()
         for (i in 0 until chipGroup_days.childCount) {
-            with(chipGroup_days[i] as Chip){
+            with(chipGroup_days[i] as Chip) {
                 text = sdf.format(calendar.time).toString()
-                if(i == 0) { this.isChecked = true }
+                if (i == 0) {
+                    this.isChecked = true
+                }
             }
             calendar.add(Calendar.DAY_OF_MONTH, -1)
         }
@@ -109,57 +140,97 @@ class PictureOfTheDayFragment : Fragment() {
         when (data) {
             is PictureOfTheDayData.Success -> {
                 val serverResponseData = data.serverResponseData.find { it.date == date }
+                currentData = serverResponseData
+                setOnCardClickListener(serverResponseData!!)
                 val url = serverResponseData?.url
-                val text = serverResponseData?.explanation
+                val text = serverResponseData?.title
 
                 if (url.isNullOrEmpty()) {
-                    //showError("Сообщение, что ссылка пустая")
                     toast("Link is empty")
                 } else {
-                    //showSuccess()
-                    image_view.load(url) {
-                        lifecycle(this@PictureOfTheDayFragment)
-                        error(R.drawable.ic_load_error_vector)
-                        placeholder(R.drawable.ic_no_photo_vector)
-                    }
-                    tv_explanation.text = text
+                    displayPOD(url, text!!)
                 }
             }
             is PictureOfTheDayData.Loading -> {
-                //showLoading()
             }
             is PictureOfTheDayData.Error -> {
-                //showError(data.error.message)
                 toast(data.error.message)
             }
         }
     }
 
-    private fun setBottomAppBar(view: View) {
-        val context = activity as MainActivity
-        context.setSupportActionBar(view.findViewById(R.id.bottom_app_bar))
-        setHasOptionsMenu(true)
-        fab.setOnClickListener {
-            if (isMain) {
-                isMain = false
-                bottom_app_bar.navigationIcon = null
-                bottom_app_bar.fabAlignmentMode = BottomAppBar.FAB_ALIGNMENT_MODE_END
-                fab.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_back_fab))
-                bottom_app_bar.replaceMenu(R.menu.menu_bottom_bar_other_screen)
-            } else {
-                isMain = true
-                bottom_app_bar.navigationIcon =
-                    ContextCompat.getDrawable(context, R.drawable.ic_hamburger_menu_bottom_bar)
-                bottom_app_bar.fabAlignmentMode = BottomAppBar.FAB_ALIGNMENT_MODE_CENTER
-                fab.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_plus_fab))
-                bottom_app_bar.replaceMenu(R.menu.menu_bottom_bar)
-            }
+    private fun displayPOD(url: String, title: String) {
+        image_view_pod.load(url) {
+            lifecycle(this@PictureOfTheDayFragment)
+            networkCachePolicy(CachePolicy.ENABLED)
+            error(R.drawable.ic_load_error_vector)
+            placeholder(R.drawable.ic_no_photo_vector)
+        }
+
+        val string = SpannableString(title)
+        string.setSpan(UnderlineSpan(), 0, title.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        tv_main_header.text = string
+    }
+
+    private fun initTransition() {
+        exitTransition = Fade(Fade.OUT).apply {
+            duration = LARGE_EXPAND_DURATION / 2
+            interpolator = FAST_OUT_LINEAR_IN
+        }
+        reenterTransition = Fade(Fade.IN).apply {
+            duration = LARGE_COLLAPSE_DURATION / 2
+            startDelay = LARGE_COLLAPSE_DURATION / 2
+            interpolator = LINEAR_OUT_SLOW_IN
         }
     }
 
-    private fun setBottomSheetBehavior(bottomSheet: ConstraintLayout) {
-        bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    private fun initTransitionAnimation(view: View) {
+        val toolbar: MaterialToolbar = view.findViewById(R.id.toolbar_home)
+        val content: NestedScrollView = view.findViewById(R.id.nestedScrollView)
+        val card: CardView = view.findViewById(R.id.card_pod)
+        val cardContent: ConstraintLayout = view.findViewById(R.id.pod_content)
+        val image: EquilateralImageView = view.findViewById(R.id.image_view_pod)
+        val title: TextView = view.findViewById(R.id.tv_main_header)
+        val mirror: MirrorView = view.findViewById(R.id.main_mirror)
+
+        ViewCompat.setOnApplyWindowInsetsListener(view.parent as View) { _, insets ->
+            toolbar.updateLayoutParams<AppBarLayout.LayoutParams> {
+                topMargin = insets.systemWindowInsetTop
+            }
+            content.updatePadding(
+                left = insets.systemWindowInsetLeft,
+                right = insets.systemWindowInsetRight,
+                bottom = insets.systemWindowInsetBottom
+            )
+            insets
+        }
+
+        ViewCompat.setTransitionName(card, "card")
+        ViewCompat.setTransitionName(cardContent, "card_content")
+        ViewCompat.setTransitionName(mirror, "article")
+        ViewGroupCompat.setTransitionGroup(cardContent, true)
+    }
+
+    private fun setOnCardClickListener(data: PODServerResponseData) {
+        val card: CardView = requireActivity().findViewById(R.id.card_pod)
+        val cardContent: ConstraintLayout = requireActivity().findViewById(R.id.pod_content)
+        val mirror: MirrorView = requireActivity().findViewById(R.id.main_mirror)
+
+        card.setOnClickListener { view ->
+            val img = data.url!!
+            val title = data.title!!
+            val description = data.explanation!!
+
+            view.findNavController().navigate(
+                PictureOfTheDayFragmentDirections.actionPodDetail(img, title, description),
+
+                FragmentNavigatorExtras(
+                    card to PictureOfTheDayDetailFragment.TRANSITION_NAME_BACKGROUND,
+                    cardContent to PictureOfTheDayDetailFragment.TRANSITION_NAME_CARD_CONTENT,
+                    mirror to PictureOfTheDayDetailFragment.TRANSITION_NAME_DESCRIPTION_CONTENT
+                )
+            )
+        }
     }
 
     private fun Fragment.toast(string: String?) {
@@ -176,10 +247,5 @@ class PictureOfTheDayFragment : Fragment() {
             THEME_RED -> R.style.AppTheme_Red
             else -> R.style.AppTheme_Green
         }
-    }
-
-    companion object {
-        fun newInstance() = PictureOfTheDayFragment()
-        private var isMain = true
     }
 }
