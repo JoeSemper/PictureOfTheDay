@@ -5,4 +5,5 @@
     <attr name="themeColorAccent" format="reference" />
     <attr name="bottomBarTint" format="reference" />
     <attr name="fabTint" format="reference" />
+    <attr name="themeColorOnPrimary" format="reference"/>
 </resources>

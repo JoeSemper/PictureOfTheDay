@@ -77,11 +77,6 @@ class SettingsFragment : Fragment() {
         }
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        replaceFragment(PictureOfTheDayFragment())
-    }
-
     private fun replaceFragment(fragment: Fragment) {
         activity?.supportFragmentManager
             ?.beginTransaction()
